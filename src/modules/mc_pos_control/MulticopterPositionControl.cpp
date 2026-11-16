@@ -189,6 +189,18 @@ void MulticopterPositionControl::parameters_update(bool force)
 					    "Land tilt limit has been constrained by maximum tilt", _param_mpc_tiltmax_air.get());
 		}
 
+		if ((_param_fd_fail_r.get() > 0 && _param_mpc_tiltmax_air.get() >= _param_fd_fail_r.get())
+		    || (_param_fd_fail_p.get() > 0 && _param_mpc_tiltmax_air.get() >= _param_fd_fail_p.get())) {
+			PX4_WARN("MPC_TILTMAX_AIR reaches or exceeds FD_FAIL_R/P");
+			/* EVENT
+			 * @description
+			 * Set <param>MPC_TILTMAX_AIR</param> below the enabled <param>FD_FAIL_R</param> and <param>FD_FAIL_P</param>
+			 * thresholds, with margin for control overshoot, to avoid attitude failure during commanded manoeuvres.
+			 */
+			events::send(events::ID("mc_pos_ctrl_tilt_fd_conflict"), events::Log::Warning,
+				     "MPC_TILTMAX_AIR conflicts with attitude failure limits");
+		}
+
 		_control.setPositionGains(Vector3f(_param_mpc_xy_p.get(), _param_mpc_xy_p.get(), _param_mpc_z_p.get()));
 		_control.setVelocityGains(
 			Vector3f(_param_mpc_xy_vel_p_acc.get(), _param_mpc_xy_vel_p_acc.get(), _param_mpc_z_vel_p_acc.get()),

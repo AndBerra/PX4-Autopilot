@@ -46,6 +46,7 @@
 #include "mc_att_control.hpp"
 
 #include <drivers/drv_hrt.h>
+#include <px4_platform_common/events.h>
 #include <mathlib/math/Limits.hpp>
 #include <mathlib/math/Functions.hpp>
 #include <Sticks.hpp>
@@ -111,6 +112,18 @@ MulticopterAttitudeControl::parameters_updated()
 	}
 
 	_man_tilt_max = math::radians(_param_mpc_man_tilt_max.get());
+
+	if ((_param_fd_fail_r.get() > 0 && _param_mpc_man_tilt_max.get() >= _param_fd_fail_r.get())
+	    || (_param_fd_fail_p.get() > 0 && _param_mpc_man_tilt_max.get() >= _param_fd_fail_p.get())) {
+		PX4_WARN("MPC_MAN_TILT_MAX reaches or exceeds FD_FAIL_R/P");
+		/* EVENT
+		 * @description
+		 * Set <param>MPC_MAN_TILT_MAX</param> below the enabled <param>FD_FAIL_R</param> and <param>FD_FAIL_P</param>
+		 * thresholds, with margin for control overshoot, to avoid attitude failure during commanded manoeuvres.
+		 */
+		events::send(events::ID("mc_att_ctrl_tilt_fd_conflict"), events::Log::Warning,
+			     "MPC_MAN_TILT_MAX conflicts with attitude failure limits");
+	}
 }
 
 float

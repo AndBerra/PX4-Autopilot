@@ -142,6 +142,9 @@ private:
 	};
 
 	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::FD_FAIL_R>) _param_fd_fail_r,
+		(ParamInt<px4::params::FD_FAIL_P>) _param_fd_fail_p,
+
 		// Position Control
 		(ParamFloat<px4::params::MPC_XY_P>)         _param_mpc_xy_p,
 		(ParamFloat<px4::params::MPC_Z_P>)          _param_mpc_z_p,

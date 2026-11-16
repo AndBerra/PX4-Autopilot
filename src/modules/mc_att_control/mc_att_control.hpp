@@ -150,6 +150,9 @@ private:
 	uint8_t _quat_reset_counter{0};
 
 	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::FD_FAIL_R>) _param_fd_fail_r,
+		(ParamInt<px4::params::FD_FAIL_P>) _param_fd_fail_p,
+
 		(ParamInt<px4::params::MC_AIRMODE>)         _param_mc_airmode,
 		(ParamFloat<px4::params::MC_MAN_TILT_TAU>)  _param_mc_man_tilt_tau,
 
